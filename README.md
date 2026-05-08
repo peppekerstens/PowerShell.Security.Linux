@@ -138,6 +138,36 @@ See [`Examples\`](Examples/) for ready-to-run scripts:
 
 ---
 
+## How we built this
+
+### Why this module exists
+
+`Get-Acl` and `Set-Acl` are used constantly in Windows automation — checking file permissions, auditing access, copying ACLs between files. On Linux, PS7.5 native `Get-Acl` returns something, but it's pretty useless: it gives you a generic object with almost no properties populated, certainly not the rich `FileSecurity` object you get on Windows. The gap is real. `PowerShell.Security.Linux` fills it with Linux-native permission data shaped to match the Windows API.
+
+### Tool choices
+
+**`stat --format='%a|%A|%U|%G|%F|%n'`** is the primary tool. `stat` is universally available on any Linux — no optional packages needed. The format string extracts octal mode (`%a`), symbolic mode (`%A`), owner (`%U`), group (`%G`), file type (`%F`), and filename (`%n`) in one call. This gives us everything we need without parsing `ls -la` output, which is fragile.
+
+**`getfacl` / `setfacl`** are optional. They provide extended POSIX ACL entries (named user, named group). The module detects at runtime whether `getfacl` is installed and, if it is, enriches the `Access` array with named entries. If not, the basic owner/group/other permissions are still returned. This way the module works on any Linux without requiring the `acl` package.
+
+**`chmod` and `chown`** handle writes. Standard, universal, nothing surprising there.
+
+### Key gotchas
+
+**PSPath provider prefix.** When `Get-ChildItem` pipes objects into `Get-LinuxAcl`, the `PSPath` property of each file object includes the PowerShell provider prefix: `Microsoft.PowerShell.Core\FileSystem::/etc/hosts`. If you pass that directly to `stat`, it fails — `stat` wants a real path, not a PS provider path. The fix strips the provider prefix before passing the path to any Linux tool.
+
+**POSIX permissions → Windows FileSystemRights mapping.** The `Access` entries need a `FileSystemRights` label that means something to someone used to Windows. The mapping is: `rwx` → `FullControl`, `rw-` → `Modify`, `r-x` → `ReadAndExecute`, `r--` → `Read`, `-wx` → `WriteAndExecute`, `-w-` → `Write`, `--x` → `ExecuteFile`, `---` → `None`. It's an approximation — POSIX and Windows ACL models are not equivalent — but it's close enough to be useful.
+
+**`stat` vs `getfacl` for "who has access".** `stat` gives you the classic Unix trinity (owner, group, other). `getfacl` gives you all named ACL entries. When both are available, `Get-LinuxAcl` merges them: the `stat` output provides the base entries, and `getfacl` adds any additional named user/group entries. Without `getfacl`, only the three base entries appear.
+
+**`SupportsShouldProcess` for Set.** `Set-LinuxAcl` runs `chmod` and `chown` which are destructive. Adding `[CmdletBinding(SupportsShouldProcess)]` and checking `$PSCmdlet.ShouldProcess(...)` before each call gives you proper `-WhatIf` and `-Confirm` support. This was a requirement from the start — changing permissions is exactly the kind of thing you want to dry-run first.
+
+### Test approach
+
+Tests use Pester 5.2+ with `BeforeDiscovery` platform detection. On Windows, all blocks skip. On WSL2, the full suite runs against real files in `/tmp`. Tests cover: basic `Get-LinuxAcl` output structure, pipeline input from `Get-ChildItem`, PSPath provider prefix stripping, `Set-LinuxAcl` with `-OctalMode`, `-WhatIf` behavior, and ACL copy via `-AclObject`. Examples are tested via `Examples\Examples.Tests.ps1`.
+
+---
+
 ## License
 
 [GNU General Public License v3.0](LICENSE)
