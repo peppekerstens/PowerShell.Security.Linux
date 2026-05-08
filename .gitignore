@@ -1,0 +1,7 @@
+*.swp
+*~
+*.ps1xml~
+TestResults*.xml
+.vscode/
+Temp/
+temp/
