@@ -1,26 +1,31 @@
 services:
   ubuntu-24:
     image: ghcr.io/peppekerstens/pwsh-pester-ubuntu:24.04
+    cap_add: [NET_RAW]
     volumes:
       - ".:/module"
     command: pwsh -NoProfile -Command "Invoke-Pester /module -Output Detailed"
   debian-12:
     image: ghcr.io/peppekerstens/pwsh-pester-debian:12
+    cap_add: [NET_RAW]
     volumes:
       - ".:/module"
     command: pwsh -NoProfile -Command "Invoke-Pester /module -Output Detailed"
   fedora-40:
     image: ghcr.io/peppekerstens/pwsh-pester-fedora:40
+    cap_add: [NET_RAW]
     volumes:
       - ".:/module"
     command: pwsh -NoProfile -Command "Invoke-Pester /module -Output Detailed"
-  opensuse-leap:
-    image: ghcr.io/peppekerstens/pwsh-pester-opensuse:leap
+  opensuse-tumbleweed:
+    image: ghcr.io/peppekerstens/pwsh-pester-opensuse:tumbleweed
+    cap_add: [NET_RAW]
     volumes:
       - ".:/module"
     command: pwsh -NoProfile -Command "Invoke-Pester /module -Output Detailed"
   arch:
     image: ghcr.io/peppekerstens/pwsh-pester-arch:latest
+    cap_add: [NET_RAW]
     volumes:
       - ".:/module"
     command: pwsh -NoProfile -Command "Invoke-Pester /module -Output Detailed"

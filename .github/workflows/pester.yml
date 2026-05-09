@@ -19,8 +19,8 @@ jobs:
             image: ghcr.io/peppekerstens/pwsh-pester-debian:12
           - distro: fedora-40
             image: ghcr.io/peppekerstens/pwsh-pester-fedora:40
-          - distro: opensuse-leap
-            image: ghcr.io/peppekerstens/pwsh-pester-opensuse:leap
+          - distro: opensuse-tumbleweed
+            image: ghcr.io/peppekerstens/pwsh-pester-opensuse:tumbleweed
           - distro: archlinux
             image: ghcr.io/peppekerstens/pwsh-pester-arch:latest
     container:
