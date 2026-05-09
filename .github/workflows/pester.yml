@@ -13,13 +13,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - distro: ubuntu:24.04
+          - distro: ubuntu-24.04
             image: ghcr.io/peppekerstens/pwsh-pester-ubuntu:24.04
-          - distro: debian:12
+          - distro: debian-12
             image: ghcr.io/peppekerstens/pwsh-pester-debian:12
-          - distro: fedora:40
+          - distro: fedora-40
             image: ghcr.io/peppekerstens/pwsh-pester-fedora:40
-          - distro: opensuse/leap
+          - distro: opensuse-leap
             image: ghcr.io/peppekerstens/pwsh-pester-opensuse:leap
           - distro: archlinux
             image: ghcr.io/peppekerstens/pwsh-pester-arch:latest
@@ -31,7 +31,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Run Pester
-        run: pwsh -NoProfile -Command "Invoke-Pester -OutputFormat NUnitXml -OutputFile results.xml"
+        run: pwsh -NoProfile -Command "Invoke-Pester -Path 'PowerShell.Security.Linux/PowerShell.Security.Linux.Tests.ps1' -OutputFormat NUnitXml -OutputFile results.xml"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -44,7 +44,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Run Pester
         shell: pwsh
-        run: Invoke-Pester -OutputFormat NUnitXml -OutputFile results.xml
+        run: Invoke-Pester -Path 'PowerShell.Security.Linux/PowerShell.Security.Linux.Tests.ps1' -OutputFormat NUnitXml -OutputFile results.xml
       - uses: actions/upload-artifact@v4
         if: always()
         with:
