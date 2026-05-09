@@ -1,0 +1,52 @@
+name: Pester Tests
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  pester-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - distro: ubuntu:24.04
+            image: ghcr.io/peppekerstens/pwsh-pester-ubuntu:24.04
+          - distro: debian:12
+            image: ghcr.io/peppekerstens/pwsh-pester-debian:12
+          - distro: fedora:40
+            image: ghcr.io/peppekerstens/pwsh-pester-fedora:40
+          - distro: opensuse/leap
+            image: ghcr.io/peppekerstens/pwsh-pester-opensuse:leap
+          - distro: archlinux
+            image: ghcr.io/peppekerstens/pwsh-pester-arch:latest
+    container:
+      image: ${{ matrix.image }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Pester
+        run: pwsh -NoProfile -Command "Invoke-Pester -OutputFormat NUnitXml -OutputFile results.xml"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pester-${{ matrix.distro }}-results
+          path: results.xml
+
+  pester-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Pester
+        shell: pwsh
+        run: Invoke-Pester -OutputFormat NUnitXml -OutputFile results.xml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pester-windows-results
+          path: results.xml
