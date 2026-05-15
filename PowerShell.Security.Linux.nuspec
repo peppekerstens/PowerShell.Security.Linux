@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>PowerShell.Security.Linux</id>
+    <version>0.1.0</version>
+    <authors>peppekerstens</authors>
+    <description>PowerShell module for Linux providing cmdlet parity with Microsoft.PowerShell.Security. Implements Get-LinuxAcl and Set-LinuxAcl using stat, chmod, chown and optional getfacl/setfacl.</description>
+    <tags>PowerShell Linux pwsh Module Security</tags>
+    <projectUrl>https://github.com/peppekerstens/PowerShell.Security.Linux</projectUrl>
+    <license type="expression">GPL-3.0-only</license>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+  </metadata>
+  <files>
+    <file src="PowerShell.Security.Linux\**\*" target="PowerShell.Security.Linux" />
+    <file src="PSScriptAnalyzerSettings.psd1" target="PowerShell.Security.Linux" />
+  </files>
+</package>
+
+
